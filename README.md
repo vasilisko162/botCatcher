@@ -1,4 +1,4 @@
-# gRecaptcha
+# botCatcher
 
 ## Information
 * version: 0.0.1
@@ -23,13 +23,13 @@ File name: `config.gRecaptcha.json`
 File contents:
 ```json
 {
-  "urlGoogleApiJs|https://www.google.com/recaptcha/api.js",
-  "urlGoogleSiteVerify|https://www.google.com/recaptcha/api/siteverify",
-  "reCAPTCHA_siteKey|add-your-google-site-key",
-  "reCAPTCHA_secret|add-your-google-secret",
+  "urlGoogleApiJs": "https://www.google.com/recaptcha/api.js",
+  "urlGoogleSiteVerify": "https://www.google.com/recaptcha/api/siteverify",
+  "reCAPTCHA_siteKey": "add-your-google-site-key",
+  "reCAPTCHA_secret": "add-your-google-secret",
   "minScore": 0.5,
-  "LogDir|../log/",
-  "logFilePrefix|gRecaptcha_log_"
+  "LogDir": "../log/",
+  "logFilePrefix": "gRecaptcha_log_"
 }
 ```
 Param name  | Param value
