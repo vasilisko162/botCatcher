@@ -1,0 +1,118 @@
+<?php
+/**
+ * Created by Vasiliy Ivanov
+ * email: vasilisko@gmail.com
+ * Version: 0.0.1
+ * Date: 11.01.2019
+ */
+
+class gRecaptcha {
+  var $config = array(
+    'configFilename' => 'config.gRecaptcha.json',
+    'textNewLine'    => "\n",
+    'textTab'        => "\t"
+  );
+  var $result = array();
+  var $data   = array();
+  var $user   = array();
+
+  function __construct() {
+
+    $this->result = array(
+      'status'   => 'error',
+      'log'      => array(),
+      'response' => array()
+    );
+
+    if (file_exists($this->config['configFilename'])) {
+      $json = file_get_contents($this->config['configFilename']);
+      $configJson = json_decode($json, TRUE);
+
+      if (is_array($configJson) && count($configJson)) {
+        foreach ($configJson as $key => $value) {
+          $this->config[$key] = $value;
+        }
+      }
+    }
+
+    $this->userHash();
+  }
+
+  function userHash() {
+    $this->user['agent'] = $_SERVER['HTTP_USER_AGENT'];
+    if (!$this->user['ip'] = $_SERVER['REMOTE_ADDR']) {
+      $this->user['ip'] = $_SERVER['HTTP_X_REAL_IP'];
+    }
+
+    $this->user['hash'] = sha1(implode('-', $this->user));
+    $this->result['user'] = $this->user['hash'];
+  }
+
+  function getConfig() {
+    $this->result['status'] = TRUE;
+    $this->result['config'] = $this->config;
+    return TRUE;
+  }
+
+  function getGoogleScore() {
+    $postData = 'secret=' . $this->config['reCAPTCHA_secret'] . '&response=' . $_POST['token'] . '&remoteip=' . $_POST['page'];
+
+    $data = file_get_contents($this->config['urlGoogleSiteVerify'] . '?' . $postData);
+
+    if ($data) {
+      $this->data = json_decode($data, TRUE);
+      $this->result['status'] = TRUE;
+      $this->result['response'] = $this->data;
+      $this->result['score'] = $this->data['score'];
+      $this->result['log'][] = 'Data received.';
+      if ($this->result['score'] >= $this->config['minScore']) {
+        $this->result['userStatus'] = 'human';
+      } else {
+        $this->result['userStatus'] = 'bot';
+      }
+    } else {
+      $this->result['status'] = FALSE;
+      $this->result['log'][] = 'Data not received';
+    }
+
+    $this->writeLog();
+    return TRUE;
+  }
+
+  function writeLog() {
+    $fileName = $this->config['logFilePrefix'] . date('Ym') . '_' . $this->result['userStatus'] . '.txt';
+    $fullPath = $this->config['LogDir'] . $fileName;
+
+    if (!is_dir($this->config['LogDir'])) {
+      if (mkdir($this->config['LogDir'])) {
+        $this->result['log'][] = 'Log Directory created.';
+      } else {
+        $this->result['log'][] = 'Could not create log directory.';
+      }
+    }
+
+    if (!$handle = fopen($fullPath, 'a')) {
+      $this->result['log'][] = 'Could not write information to log.';
+      return FALSE;
+    }
+
+    $content = $this->user['ip'] . $this->config['textTab'] . $this->result['score'] . $this->config['textTab'] . $this->user['agent'] .
+               $this->config['textNewLine'];
+
+    if (fwrite($handle, $content) === FALSE) {
+      return FALSE;
+    }
+
+    fclose($handle);
+    $this->result['log'][] = 'Log updated.';
+    return TRUE;
+  }
+
+  function returnJson() {
+    if (is_array($this->result['log'])) {
+      $this->result['log'] = implode(' ', $this->result['log']);
+    }
+    echo json_encode($this->result);
+    die();
+  }
+}
