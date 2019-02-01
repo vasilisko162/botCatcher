@@ -38,7 +38,7 @@ Param name  | Param value
 |urlGoogleSiteVerify| url to Google Site Verify service. Example: https://www.google.com/recaptcha/api/siteverify|
 |reCAPTCHA_siteKey| Your Google site key |
 |reCAPTCHA_secret| Your Google secret |
-|minScore| Сколько минимум очков должен получить от "Гоогле" пользователь, чтобы не считаться ботом. Min: `0.1`. Max: `1.0`. Default: `0.5`| 
+|minScore| How many points a user should get from "Google", in order not to be considered a bot. Min: `0.1`. Max: `1.0`. Default: `0.5`| 
 |LogDir| Path to the folder where logs will be stored. Example: `../log/` |
 |logFilePrefix| Prefix for log file names. Example: `gRecaptcha_log_`|
 
