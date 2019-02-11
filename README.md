@@ -45,20 +45,7 @@ Param name  | Param value
 File for example: `gRecaptcha/config.gRecaptcha.example.json`
 
 #### step  3
-Add a connection script to your site template;
-```html
-<html>
-<head>
-  ...
-  <script type="text/javascript" src="jquery.gRecaptcha.js"></script>
-  ...
-</head>
-<body>
-...
-```
-
-#### step 4
-Call the module in the site template.
+Add a connection script to your site template & call the module in the site template. 
 ```html
 <html>
 <head>
@@ -79,7 +66,7 @@ Call the module in the site template.
 |config param|config value|
 ----------------|----------------------
 |timerTime|The time after which the request will be sent to the Google to get information about the user. Default: `20`|
-|workDir|'Address of the folder where the script is located. Default: `../gRecaptcha/`'|
+|workDir|Address of the folder where the script is located. Default: `../gRecaptcha/`'|
 |showLog|Display logs in the console. Default: `false`|
 
 ## Example
