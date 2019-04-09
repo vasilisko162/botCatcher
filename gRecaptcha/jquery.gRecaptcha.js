@@ -1,4 +1,4 @@
-(function($) {
+(function(jQuery) {
   jQuery.ajaxSettings.traditional = true;
 
   var settings = {
@@ -22,7 +22,7 @@
   var methods = {
     init: function(options) {
       if (options) {
-        $.extend(settings, options);
+        jQuery.extend(settings, options);
       }
 
       methods.showLog('Start.');
@@ -38,7 +38,7 @@
 
     loadConfig: function() {
       methods.showLog('Step 1. Load config.');
-      $.ajax({
+      jQuery.ajax({
         url: settings.workDir + settings.fileAjax,
         type: 'POST',
         dataType: 'json',
@@ -117,7 +117,7 @@
 
     getGoogleScore: function() {
       methods.showLog('Step 5. Get Google score.');
-      $.ajax({
+      jQuery.ajax({
         url: settings.workDir + settings.fileAjax,
         type: 'POST',
         dataType: 'json',
@@ -173,14 +173,14 @@
     }
   };
 
-  $.fn.gRecaptcha = function(method) {
+  jQuery.fn.gRecaptcha = function(method) {
     // Method calling logic
     if (methods[method]) {
       return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
     } else if (typeof method === 'object' || !method) {
       return methods.init.apply(this, arguments);
     } else {
-      $.error('Method ' + method + ' does not exist on jQuery.gRecaptcha');
+      jQuery.error('Method ' + method + ' does not exist on jQuery.gRecaptcha');
     }
   };
 })(jQuery);
