@@ -25,6 +25,7 @@ class gRecaptcha {
     );
 
     if (file_exists($this->config['configFilename'])) {
+      // TODO change to curl
       $json = file_get_contents($this->config['configFilename']);
       $configJson = json_decode($json, TRUE);
 
@@ -57,6 +58,7 @@ class gRecaptcha {
   function getGoogleScore() {
     $postData = 'secret=' . $this->config['reCAPTCHA_secret'] . '&response=' . $_POST['token'] . '&remoteip=' . $_POST['page'];
 
+    // TODO change to curl
     $data = file_get_contents($this->config['urlGoogleSiteVerify'] . '?' . $postData);
 
     if ($data) {
