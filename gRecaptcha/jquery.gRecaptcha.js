@@ -2,6 +2,7 @@
   jQuery.ajaxSettings.traditional = true;
 
   var settings = {
+    timerType: 2,
     timerTime: 20,
     workDir: '../gRecaptcha/',
     fileAjax: 'ajax.gRecaptcha.php',
@@ -50,15 +51,19 @@
         },
         success: function(data) {
           if (data) {
-            // user info
-            methods.storageSetItem('user', data.user);
-            methods.storageSetItem('timeUpdate', new Date());
             // update settings
+            settings.timerType = data.config.timerType;
+            settings.timerTime = data.config.timerTime;
             settings.urlApiJs = data.config.urlGoogleApiJs;
             settings.urlGoogleSiteVerify = data.config.urlGoogleSiteVerify;
             settings.reCAPTCHA_siteKey = data.config.reCAPTCHA_siteKey;
             settings.reCAPTCHA_secret = data.config.reCAPTCHA_secret;
+            // user info
+            methods.storageSetItem('user', data.user);
+            methods.storageSetItem('timeUpdate', new Date());
+            methods.storageSetItem('timerTime', settings.timerTime);
 
+            methods.showLog('Success');
             // Step two. Add JS script.
             methods.addScript();
           } else {
@@ -71,29 +76,45 @@
     addScript: function() {
       methods.showLog('Step 2. Add JS script.');
       jQuery.getScript(settings.urlApiJs + '?render=' + settings.reCAPTCHA_siteKey)
-      .done(function() {
-
-        // Step three. Get Google token.
-        methods.getGoogleToken();
-        // Step four. Start timer.
-        methods.startTimer();
-      })
-      .fail(function() {
-        methods.showWarningLog('Failed to load file ' + settings.urlApiJs);
-      });
+        .done(function() {
+          // Step three. Get Google token.
+          methods.getGoogleToken();
+          // Step four. Start timer.
+          methods.startTimer();
+        })
+        .fail(function() {
+          methods.showWarningLog('Failed to load file ' + settings.urlApiJs);
+        });
     },
 
     startTimer: function() {
       methods.showLog('Step 4. Start timer: ' + settings.timerTime + ' sec.');
+      var sendRequestAfter = settings.timerTime * 1000;
+
+      if (settings.timerType == 1) {
+        if (methods.storageGetItem('timerStart') === null) {
+          methods.storageSetItem('timerStart', +new Date());
+          methods.storageSetItem('timerStop', +new Date() + settings.timerTime * 1000);
+        }
+
+        var timerNow  = +new Date(),
+            timerStop = methods.storageGetItem('timerStop');
+
+        if (timerNow >= timerStop) {
+          sendRequestAfter = 0
+        } else {
+          sendRequestAfter = timerStop - timerNow;
+        }
+      }
+
+      methods.showLog('Send request after ' + (sendRequestAfter / 1000).toFixed(0) + ' sec.');
+
       properties.timerId = setTimeout(function() {
         properties.timerIteration++;
-        if (properties.googleToken) {
-          // Step five. Get Google score.
-          methods.getGoogleScore();
-        } else {
-          methods.showWarningLog('Failed get Google Score. Token from Google is null');
-        }
-      }, settings.timerTime * 1000);
+        // Step five. Get Google score.
+        methods.getGoogleScore();
+      }, sendRequestAfter);
+
     },
 
     clearTimer: function() {
@@ -117,6 +138,10 @@
 
     getGoogleScore: function() {
       methods.showLog('Step 5. Get Google score.');
+      if (!properties.googleToken) {
+        methods.showWarningLog('Failed get Google Score. Token from Google is null');
+        return false;
+      }
       jQuery.ajax({
         url: settings.workDir + settings.fileAjax,
         type: 'POST',
@@ -162,7 +187,11 @@
 
     showLog: function(str) {
       if (settings.showLog) {
-        console.log('gRecaptcha: ' + str);
+        if (typeof str === 'string') {
+          console.log('gRecaptcha: ' + str);
+        } else {
+          console.log(str);
+        }
       }
     },
 

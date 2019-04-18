@@ -8,7 +8,7 @@
 
 class gRecaptcha {
   var $config = array(
-    'configFilename' => 'config.gRecaptcha.json',
+    'configFilename' => 'config.gRecaptcha.php',
     'textNewLine'    => "\n",
     'textTab'        => "\t"
   );
@@ -25,14 +25,10 @@ class gRecaptcha {
     );
 
     if (file_exists($this->config['configFilename'])) {
-      // TODO change to curl
-      $json = file_get_contents($this->config['configFilename']);
-      $configJson = json_decode($json, TRUE);
-
-      if (is_array($configJson) && count($configJson)) {
-        foreach ($configJson as $key => $value) {
-          $this->config[$key] = $value;
-        }
+      $gRecaptchaConfig = array();
+      include $this->config['configFilename'];
+      if (is_array($gRecaptchaConfig)) {
+        $this->config = $gRecaptchaConfig;
       }
     }
 
